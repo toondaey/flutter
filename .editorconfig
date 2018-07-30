@@ -1,0 +1,16 @@
+root = true
+
+[*]
+charset = utf-8
+insert_final_newline = true
+end_of_line = lf
+
+[*{.php,.md}]
+indent_style = space
+trim_trailing_whitespace = true
+
+[*.php]
+indent_size = 4
+
+[*.md]
+indent_size = 2
