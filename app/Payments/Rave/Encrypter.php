@@ -4,7 +4,25 @@ namespace App\Payments\Rave;
 
 class Encrypter
 {
-    public function getKey(string $seckey): string
+    public static $key;
+
+    /**
+     * Initiate encryption class.
+     *
+     * @param string $secKey
+     */
+    public function __construct()
+    {
+        static::$key = static::getKey(config('rave.keys.secret'));
+    }
+
+    /**
+     * Make ecryption key.
+     *
+     * @param  string $seckey Flutter public key
+     * @return string
+     */
+    public static function getKey(string $seckey): string
     {
         $hashedkey = md5($seckey);
         $hashedkeylast12 = substr($hashedkey, -12);
@@ -17,9 +35,16 @@ class Encrypter
         return $encryptionkey;
     }
 
-    public function encrypt3Des(string $data, string $key): string
+    /**
+     * Encrypt flutter data.
+     *
+     * @param  string $data
+     * @param  string $key  Public key generated above.
+     * @return string
+     */
+    public static function encrypt3Des(string $data): string
     {
-        $encData = openssl_encrypt($data, 'DES-EDE3', $key, OPENSSL_RAW_DATA);
+        $encData = openssl_encrypt($data, 'DES-EDE3', static::$key, OPENSSL_RAW_DATA);
 
         return base64_encode($encData);
     }
