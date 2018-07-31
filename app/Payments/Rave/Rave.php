@@ -39,19 +39,21 @@ class Rave
      *
      * @param  array  $data
      */
-	public function charge(array $data)
+	public function charge(array $data): Rave
     {
         $data = array_merge($data, $this->setPubKey());
 
-        $encryptedData = $this->encrypter->encrypt3Des($data);
+        $encryptedData = $this->encrypter->encrypt3Des(json_encode($data));
 
         $this->response = $this->client->post(
             $this->uris['charge'],
             [
-                'json' => array_merge($this->setPubKey(), ['client' => $encryptedDatat]),
+                'json' => array_merge($this->setPubKey(), ['client' => $encryptedData]),
                 'http_errors' => false,
             ]
         );
+
+        return $this;
     }
 
     /**
@@ -59,16 +61,40 @@ class Rave
      *
      * @return array
      */
-    public function getRespnose(): array
+    public function getResponse(): array
     {
-        return json_decode($this->response, true);
+        return json_decode((string) $this->response->getBody(), true);
     }
 
-    public function validate()
-    {}
+    public function validate(array $data): Rave
+    {
+        $data = array_merge($this->setPubKey(), $data);
 
-    public function verify()
-    {}
+        $this->response = $this->client->post(
+            $this->uris['validate'],
+            [
+                'json' => $data,
+                'http_errors' => false,
+            ]
+        );
+
+        return $this;
+    }
+
+    public function verify(array $data): Rave
+    {
+        $data = array_merge($this->setPubKey(), $data);
+
+        $this->response = $this->client->post(
+            $this->uris['verify'],
+            [
+                'json' => $data,
+                'http_errors' => false,
+            ]
+        );
+
+        return $this;
+    }
 
     protected function setPubKey()
     {

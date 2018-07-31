@@ -6,6 +6,7 @@ use Tests\TestCase;
 use GuzzleHttp\Client;
 use App\Payments\Rave\Rave;
 use Tests\Concerns\Reflector;
+use GuzzleHttp\Psr7\Response;
 use App\Payments\Rave\Encrypter;
 
 class RaveTest extends TestCase
@@ -49,6 +50,59 @@ class RaveTest extends TestCase
      */
     public function charge(Reflector $reflected)
     {
-        // $reflected->
+        $this->successChargeResponse();
+        $reflected->setProperty('client', $this->mockedClient);
+
+        $charge = $reflected->invokeMethod('charge', [[]]);
+        $chargeResponse = $reflected->invokeMethod('getResponse');
+
+        $this->assertInternalType('array', $chargeResponse);
+        $this->assertEquals('success', $chargeResponse['status']);
+    }
+
+    /**
+     * @test
+     * @depends test_rave_is_initiated
+     * @group  rave_test
+     */
+    public function validate(Reflector $reflected)
+    {
+        $this->successValidateResponse();
+        $reflected->setProperty('client', $this->mockedClient);
+
+        $charge = $reflected->invokeMethod('validate', [[]]);
+        $chargeResponse = $reflected->invokeMethod('getResponse');
+
+        $this->assertInternalType('array', $chargeResponse);
+        $this->assertEquals('success', $chargeResponse['status']);
+    }
+
+    protected function successChargeResponse()
+    {
+        $this->getResponseStub();
+
+        $this->prepareResponsesForClient([
+            new Response(
+                200, ['Content-Type' => 'application/json'],
+                json_encode($this->responses['successes']['card_payment'])
+            )
+        ]);
+    }
+
+    protected function successValidateResponse()
+    {
+        $this->getResponseStub();
+
+        $this->prepareResponsesForClient([
+            new Response(
+                200, ['Content-Type' => 'application/json'],
+                json_encode($this->responses['successes']['validation'])
+            ),
+        ]);
+    }
+
+    protected function getResponseStub()
+    {
+        $this->responses = require __DIR__.'/../Stubs/responses.php';
     }
 }

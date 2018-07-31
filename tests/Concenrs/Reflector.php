@@ -20,7 +20,7 @@ class Reflector extends \ReflectionClass
      * @param  array  $args
      * @return mixed
      */
-    public function invokeMethod ($methodName, $args = [])
+    public function invokeMethod ($methodName, array $args = [])
     {
         $method = parent::getMethod($methodName);
 
