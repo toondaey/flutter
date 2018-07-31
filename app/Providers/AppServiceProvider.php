@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Payments\Rave\Rave;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton('rave', function ($app) {
+            $env = $this->app['config']->get('rave.env');
+
+            return new Rave(
+                new Client([
+                    'base_uri' => $this->app['config']->get("rave.{$env}"),
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ])
+            );
+        });
     }
 }

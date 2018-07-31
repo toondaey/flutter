@@ -2,6 +2,11 @@
 
 return [
     /**
+     * This can be live or sandbox
+     */
+    'default' => env('RAVE_ENV', 'live'),
+
+    /**
      * @see https://flutterwavedevelopers.readme.io/reference#api-request-and-response-standards
      */
     'urls' => [

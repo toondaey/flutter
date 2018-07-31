@@ -12,9 +12,9 @@ class Rave
 
     protected $encrypter;
 
-    protected $live;
-
     public $response;
+
+    protected $client;
 
     protected $uris = [
         'charge' => '/flwv3-pug/getpaidx/api/charge',
@@ -23,21 +23,11 @@ class Rave
         'bvn' => 'v2/kyc/bvn/%d',
     ];
 
-    public function __construct()
+    public function __construct(Client $client)
     {
-        $this->live = app()->environment(['production']);
+        $this->client = $client;
 
         $this->encrypter = new Encrypter;
-
-        $this->client = new Client([
-            'base_uri' => $this->live ?
-                                    config('rave.uris.sandbox') :
-                                    config('rave.uris.live'),
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Accept'       => 'application/json'
-            ]
-        ]);
 
         $this->pubKey = config('rave.keys.public');
 
@@ -45,7 +35,8 @@ class Rave
     }
 
     /**
-     * Charge card payment
+     * Charge card payment.
+     *
      * @param  array  $data
      */
 	public function charge(array $data)
@@ -63,6 +54,11 @@ class Rave
         );
     }
 
+    /**
+     * Get response.
+     *
+     * @return array
+     */
     public function getRespnose(): array
     {
         return json_decode($this->response, true);
