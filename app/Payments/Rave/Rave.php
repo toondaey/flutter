@@ -20,7 +20,7 @@ class Rave
         'charge' => '/flwv3-pug/getpaidx/api/charge',
         'validate' => '/flwv3-pug/getpaidx/api/validatecharge',
         'verify' => '/flwv3-pug/getpaidx/api/v2/verify',
-        'bvn' => 'v2/kyc/bvn/%d',
+        'bvn' => 'v2/kyc/bvn/%s',
     ];
 
     public function __construct(Client $client)
@@ -83,12 +83,27 @@ class Rave
 
     public function verify(array $data): Rave
     {
-        $data = array_merge($this->setPubKey(), $data);
+        $data = array_merge(['SECKEY' => $this->secKey], $data);
 
         $this->response = $this->client->post(
             $this->uris['verify'],
             [
                 'json' => $data,
+                'http_errors' => false,
+            ]
+        );
+
+        return $this;
+    }
+
+    public function bvn(string $bvn): Rave
+    {
+        $data = ['seckey' => $this->secKey];
+
+        $this->response = $this->client->get(
+            sprintf($this->uris['bvn'], $bvn),
+            [
+                'query' => $data,
                 'http_errors' => false,
             ]
         );

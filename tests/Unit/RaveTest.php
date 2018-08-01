@@ -70,11 +70,45 @@ class RaveTest extends TestCase
         $this->successValidateResponse();
         $reflected->setProperty('client', $this->mockedClient);
 
-        $charge = $reflected->invokeMethod('validate', [[]]);
-        $chargeResponse = $reflected->invokeMethod('getResponse');
+        $validation = $reflected->invokeMethod('validate', [[]]);
+        $validationResponse = $reflected->invokeMethod('getResponse');
 
-        $this->assertInternalType('array', $chargeResponse);
-        $this->assertEquals('success', $chargeResponse['status']);
+        $this->assertInternalType('array', $validationResponse);
+        $this->assertEquals('success', $validationResponse['status']);
+    }
+
+    /**
+     * @test
+     * @depends test_rave_is_initiated
+     * @group  rave_test
+     */
+    public function bvn(Reflector $reflected)
+    {
+        $this->successValidateResponse();
+        $reflected->setProperty('client', $this->mockedClient);
+
+        $bvn = $reflected->invokeMethod('bvn', [(string) 123456789]);
+        $bvnResponse = $reflected->invokeMethod('getResponse');
+
+        $this->assertInternalType('array', $bvnResponse);
+        $this->assertEquals('success', $bvnResponse['status']);
+    }
+
+    /**
+     * @test
+     * @depends test_rave_is_initiated
+     * @group  rave_test
+     */
+    public function verify(Reflector $reflected)
+    {
+        $this->successValidateResponse();
+        $reflected->setProperty('client', $this->mockedClient);
+
+        $verification = $reflected->invokeMethod('verify', [[]]);
+        $verificationResponse = $reflected->invokeMethod('getResponse');
+
+        $this->assertInternalType('array', $verificationResponse);
+        $this->assertEquals('success', $verificationResponse['status']);
     }
 
     protected function successChargeResponse()
@@ -97,6 +131,18 @@ class RaveTest extends TestCase
             new Response(
                 200, ['Content-Type' => 'application/json'],
                 json_encode($this->responses['successes']['validation'])
+            ),
+        ]);
+    }
+
+    protected function successVerifyResponse()
+    {
+        $this->getResponseStub();
+
+        $this->prepareResponsesForClient([
+            new Response(
+                200, ['Content-Type' => 'application/json'],
+                json_encode($this->responses['successes']['verify'])
             ),
         ]);
     }
